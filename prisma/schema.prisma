@@ -13,3 +13,25 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model TD_Item {
+  id          String    @id @default(uuid())
+  barcode     String    @db.VarChar(255)
+  nama        String    @db.VarChar(255)
+  jenis       String    @db.VarChar(255)
+  berat       Int
+  satuan      String    @db.VarChar(10)
+  perusahaan  String    @db.VarChar(255)
+  harga       Int
+  TH_Item     TH_Item[]
+  createAt    DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TH_Item {
+  id          String    @id @default(uuid())
+  itemId      String    @db.VarChar(255)
+  TD_Item     TD_Item   @relation(fields: [itemId], references: [id])
+  kriteria    Int
+  createAt    DateTime  @default(now())
+}

@@ -10,3 +10,7 @@ build/
 *.log
 coverage/
 /generated/prisma
+
+/src/generated/prisma
+
+/generated/prisma
