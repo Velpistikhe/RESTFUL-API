@@ -1,10 +1,59 @@
 const prisma = require("../../config/prismaClient");
 
 const getItems = async (req, res, next) => {
-  try {
-    const datas = await prisma.tD_Item.findMany();
+  const {
+    barcode,
+    nama,
+    jenis,
+    berat,
+    satuan,
+    perusahaan,
+    harga,
+    page = 1,
+    limit = 10,
+  } = req.query;
 
-    res.status(200).json({ success: true, items: datas });
+  const currentPage = parseInt(page);
+  const take = parseInt(limit);
+  const skip = (currentPage - 1) * take;
+
+  const filters = [
+    barcode && { barcode: { contains: barcode, mode: "insensitive" } },
+    nama && { nama: { contains: nama, mode: "insensitive" } },
+    jenis && { jenis: { contains: jenis, mode: "insensitive" } },
+    berat && { berat: parseFloat(berat) },
+    satuan && { satuan: { contains: satuan, mode: "insensitive" } },
+    perusahaan && {
+      perusahaan: { contains: perusahaan, mode: "insensitive" },
+    },
+    harga && { harga: parseFloat(harga) },
+  ].filter(Boolean);
+
+  const where = {
+    AND: filters,
+  };
+
+  try {
+    const [items, total] = await Promise.all([
+      prisma.tD_Item.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createAt: "desc" },
+      }),
+      prisma.tD_Item.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      pagination: {
+        total,
+        page: currentPage,
+        limit: take,
+        totalPages: Math.ceil(total / take),
+      },
+      items,
+    });
   } catch (error) {
     next(error);
   }
@@ -13,13 +62,24 @@ const getItems = async (req, res, next) => {
 const postItem = async (req, res, next) => {
   const { barcode, nama, jenis, berat, satuan, perusahaan, harga } = req.body;
 
-  if (!barcode || !nama || !jenis || !berat || !satuan || !perusahaan || !harga)
-    return res.status(400).json({
-      success: false,
-      message: "Data tidak lengkap harap periksa kembali",
+  try {
+    const exist = await prisma.tD_Item.findFirst({
+      where: {
+        AND: {
+          nama,
+          jenis,
+          berat,
+          satuan,
+          perusahaan,
+        },
+      },
     });
 
-  try {
+    if (exist)
+      return res
+        .status(409)
+        .json({ success: false, message: "Barang sudah tersedia" });
+
     const createData = await prisma.tD_Item.create({
       data: {
         barcode,
@@ -32,14 +92,11 @@ const postItem = async (req, res, next) => {
       },
     });
 
-    // if (!createData)
-    //   return res
-    //     .status(409)
-    //     .json({ success: false, message: "Barang gagal ditambahkan" });
-
-    res
-      .status(201)
-      .json({ success: true, message: "Barang berhasil ditambahkan" });
+    res.status(201).json({
+      success: true,
+      message: "Barang berhasil ditambahkan",
+      item: createData,
+    });
   } catch (error) {
     next(error);
   }
