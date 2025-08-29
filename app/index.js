@@ -1,7 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+
 const item = require("./modules/item/item.routes");
+const notFound = require("./modules/notfound/notFound.controller");
 const errorHandler = require("./middlewares/errorHandler");
 
 dotenv.config();
@@ -10,7 +12,10 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 app.use("/api", item);
+
+app.use(notFound);
 app.use(errorHandler);
 
 app.listen(process.env.APP_PORT, () =>
