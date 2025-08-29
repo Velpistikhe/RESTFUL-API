@@ -11,7 +11,10 @@ dotenv.config();
 const app = express();
 
 app.use(
-  cors({ origin: "https://sample-product-app.vercel.app", credentials: true })
+  cors({
+    origin: "https://sample-product-app-velpistikhes-projects.vercel.app",
+    credentials: true,
+  })
 );
 app.use(express.json());
 
