@@ -10,7 +10,11 @@ dotenv.config();
 
 const app = express();
 
+<<<<<<< HEAD
 app.use(cors());
+=======
+app.use(cors({ origin: "localhost:3000" }));
+>>>>>>> 815e461 (setting cors)
 app.use(express.json());
 
 app.use("/api", item);
