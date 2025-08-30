@@ -1,6 +1,7 @@
 const prisma = require("../../config/prismaClient");
 
 const getItems = async (req, res, next) => {
+  console.log(req.query);
   const {
     barcode,
     nama,
@@ -11,6 +12,8 @@ const getItems = async (req, res, next) => {
     harga,
     page = 1,
     limit = 10,
+    sort = "createAt",
+    order = "desc",
   } = req.query;
 
   const currentPage = parseInt(page);
@@ -39,7 +42,7 @@ const getItems = async (req, res, next) => {
         where,
         skip,
         take,
-        orderBy: { createAt: "desc" },
+        orderBy: { [sort]: order },
       }),
       prisma.tD_Item.count({ where }),
     ]);

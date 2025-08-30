@@ -12,7 +12,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://sample-product-app-velpistikhes-projects.vercel.app",
+    // origin: "https://sample-product-app-velpistikhes-projects.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
