@@ -1,7 +1,6 @@
 const prisma = require("../../config/prismaClient");
 
 const getItems = async (req, res, next) => {
-  console.log(req.query);
   const {
     barcode,
     nama,
