@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
+app.use(cookieParser());
 
 app.use("/api/v1/item", itemRoutes);
 app.use("/api/v1/user", userRoutes);
