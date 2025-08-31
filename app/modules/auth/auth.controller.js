@@ -1,5 +1,7 @@
+const cookieOptions = require("../../config/cookieOptions");
 const prisma = require("../../config/prismaClient");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res, next) => {
   const { username, nama, role, password } = req.body;
@@ -24,7 +26,6 @@ const register = async (req, res, next) => {
         data: {
           username,
           nama: nama,
-          role: parseInt(role),
           password: hashedPassword,
         },
       });
@@ -51,4 +52,49 @@ const register = async (req, res, next) => {
   }
 };
 
-module.exports = { register };
+const login = async (req, res, next) => {
+  const { username, password } = req.body;
+
+  try {
+    const existUser = await prisma.tD_User.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!existUser)
+      return res.status(401).json({
+        success: false,
+        message: "Login gagal! Silahkan login kembali",
+      });
+
+    const compare = await bcrypt.compare(password, existUser.password);
+
+    if (!compare)
+      return res.status(401).json({
+        success: false,
+        message: "Login gagal! Silahkan login kembali",
+      });
+
+    const token = jwt.sign({ id: existUser.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.cookie("Authorization", `Bearer ${token}`, {
+      ...cookieOptions,
+      maxAge: 2 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ success: true, message: "Berhasil Login" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req, res, next) => {
+  res.clearCookie("Authorization", { ...cookieOptions });
+
+  res.status(200).json({ success: true, message: "Berhasil Logout" });
+};
+
+module.exports = { register, login, logout };
