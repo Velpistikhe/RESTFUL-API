@@ -14,7 +14,6 @@ const app = express();
 
 app.use(
   cors({
-    // origin: "https://sample-product-app-velpistikhes-projects.vercel.app",
     origin: process.env.CLIENT_URL,
     credentials: true,
   })
