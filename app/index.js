@@ -10,6 +10,8 @@ const itemRoutes = require("./modules/item/item.routes");
 const userRoutes = require("./modules/auth/auth.routes");
 const notFound = require("./modules/notfound/notFound.controller");
 const errorHandler = require("./middlewares/errorHandler");
+const csrfProtection = require("./middlewares/csrfProtection");
+const setupCsrfToken = require("./utils/setupCsrfToken");
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
 
+app.get("/api/csrf-token", csrfProtection, setupCsrfToken);
 app.use("/api/v1/item", itemRoutes);
 app.use("/api/v1/user", userRoutes);
 

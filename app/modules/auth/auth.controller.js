@@ -62,15 +62,7 @@ const login = async (req, res, next) => {
       },
     });
 
-    if (!existUser)
-      return res.status(401).json({
-        success: false,
-        message: "Login gagal! Silahkan login kembali",
-      });
-
-    const compare = await bcrypt.compare(password, existUser.password);
-
-    if (!compare)
+    if (!existUser && !(await bcrypt.compare(password, existUser.password)))
       return res.status(401).json({
         success: false,
         message: "Login gagal! Silahkan login kembali",
@@ -95,6 +87,8 @@ const profile = async (req, res, next) => {
   try {
     const { id } = req.user;
 
+    if (!id) return res.status(200).send({ success: false });
+
     const user = await prisma.tD_User.findUnique({
       where: {
         id: id,
@@ -109,12 +103,10 @@ const profile = async (req, res, next) => {
         .json({ success: false, message: "Invalid Credentials" });
     }
 
-    setTimeout(() => {
-      res.status(200).json({
-        success: true,
-        user: { nama: user.nama, role: user.role === 0 ? "Admin" : "Staff" },
-      });
-    }, 3000);
+    res.status(200).json({
+      success: true,
+      user: { nama: user.nama, role: user.role === 0 ? "Admin" : "Staff" },
+    });
   } catch (error) {
     next(error);
   }
