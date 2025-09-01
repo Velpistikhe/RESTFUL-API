@@ -8,6 +8,6 @@ const loginLimiter = require("../../middlewares/limitLogin");
 router.post("/", validateUser, register);
 router.post("/login", loginLimiter, validateLogin, login);
 router.post("/logout", logout);
-router.post("/profile", verifyToken, profile);
+router.get("/profile", verifyToken, profile);
 
 module.exports = router;
