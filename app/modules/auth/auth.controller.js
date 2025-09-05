@@ -68,6 +68,8 @@ const login = async (req, res, next) => {
         message: "Login gagal! Silahkan login kembali",
       });
 
+    const { password, id, ...safeUser } = existUser;
+
     const token = jwt.sign({ id: existUser.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -77,7 +79,11 @@ const login = async (req, res, next) => {
       maxAge: 2 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ success: true, message: "Berhasil Login" });
+    res.status(200).json({
+      success: true,
+      message: "Berhasil Login",
+      user: safeUser,
+    });
   } catch (error) {
     next(error);
   }

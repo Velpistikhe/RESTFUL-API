@@ -19,7 +19,7 @@ model TD_User {
   username    String    @unique @db.VarChar(255)
   nama        String    @db.VarChar(255)
   password    String    @db.VarChar(255)
-  role        Int       @default(1)
+  role        Int       @default(2)
   createAt    DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   TH_User     TH_User[]
