@@ -23,6 +23,7 @@ model TD_User {
   createAt    DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   TH_User     TH_User[]
+  TH_Produk   TH_Produk[]
 }
 
 model TH_User {
@@ -30,6 +31,28 @@ model TH_User {
   userId      String    @db.VarChar(255)
   TD_User     TD_User   @relation(fields: [userId], references: [id])
   action      Int
+  createAt    DateTime  @default(now())
+}
+
+model TD_Produk {
+  id          String    @id @default(uuid())
+  nama        String    @db.VarChar(255)
+  kondisi     Int
+  harga       Int
+  spesifikasi String?   @db.VarChar(255)
+  deskripsi   String?   @db.VarChar(255)
+  createAt    DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  TH_Produk   TH_Produk[]
+}
+
+model TH_Produk {
+  id          String    @id @default(uuid())
+  aksi        Int
+  produkId    String    @db.VarChar(255)
+  TD_Produk   TD_Produk @relation(fields: [produkId], references: [id])
+  userId      String    @db.VarChar(255)
+  TD_User     TD_User   @relation(fields: [userId], references: [id])
   createAt    DateTime  @default(now())
 }
 
