@@ -1,4 +1,5 @@
 const { body, validationResult } = require("express-validator");
+const handleValidation = require("../../middlewares/validationHandler");
 
 const validateItem = [
   body("barcode").notEmpty().withMessage("Barcode tidak boleh kosong"),
@@ -17,20 +18,7 @@ const validateItem = [
     .isFloat({ gt: 0 })
     .withMessage("Harga harus berupa angka dan lebih dari 0"),
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: "Data tidak lengkap",
-        errors: errors.array().map((err) => ({
-          field: err.param,
-          message: err.msg,
-        })),
-      });
-    }
-    next();
-  },
+  handleValidation,
 ];
 
 module.exports = validateItem;

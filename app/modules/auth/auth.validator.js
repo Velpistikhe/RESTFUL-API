@@ -1,5 +1,5 @@
 const { body } = require("express-validator");
-const handleValidation = require("../../middlewares/validation");
+const handleAuthValidation = require("./auth.middleware");
 
 const validateUser = [
   body("username").notEmpty().withMessage("Username tidak boleh kosong"),
@@ -10,7 +10,7 @@ const validateUser = [
     .isLength({ min: 8 })
     .withMessage("Password minimal 8 karakter"),
 
-  handleValidation,
+  handleAuthValidation,
 ];
 
 const validateLogin = [
@@ -21,7 +21,7 @@ const validateLogin = [
     .isLength({ min: 8 })
     .withMessage("Password minimal 8 karakter"),
 
-  handleValidation,
+  handleAuthValidation,
 ];
 
 module.exports = { validateUser, validateLogin };

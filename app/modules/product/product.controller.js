@@ -59,8 +59,8 @@ const createProduct = async (req, res, next) => {
         nama,
         harga: parseInt(harga),
         kondisi: parseInt(kondisi),
-        spesifikasi,
-        deskripsi,
+        spesifikasi: spesifikasi || "-",
+        deskripsi: deskripsi || "-",
       },
     });
 
