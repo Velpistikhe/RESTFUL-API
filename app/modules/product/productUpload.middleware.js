@@ -1,18 +1,7 @@
 const multer = require("multer");
-const path = require("path");
+const storage = require("../../config/storage");
 
-const storage = multer.diskStorage({
-  destination: (req, filename, cb) => {
-    cb(null, "public/pictures/product");
-  },
-
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 const uploadMiddleware = upload.array("file", 5);
 
