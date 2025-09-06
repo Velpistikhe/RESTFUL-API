@@ -1,7 +1,7 @@
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("./cloudinary");
 
-const storage = new CloudinaryStorage({
+const cloudStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "produk",
@@ -10,4 +10,4 @@ const storage = new CloudinaryStorage({
   },
 });
 
-module.exports = storage;
+module.exports = cloudStorage;
