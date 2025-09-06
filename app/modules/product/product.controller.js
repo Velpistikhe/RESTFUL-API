@@ -1,4 +1,6 @@
 const prisma = require("../../config/prismaClient");
+const fs = require("fs").promises;
+const path = require("path");
 
 const getProducts = async (req, res, next) => {
   const {
@@ -50,38 +52,66 @@ const getProducts = async (req, res, next) => {
 };
 
 const createProduct = async (req, res, next) => {
-  const { nama, harga, kondisi, spesifikasi, deskripsi } = req.body;
   const user = req.user;
+  const { nama, harga, kondisi, spesifikasi, deskripsi } = req.body;
+  const files = req.files;
 
   try {
-    const createProduct = await prisma.tD_Produk.create({
-      data: {
-        nama,
-        harga: parseInt(harga),
-        kondisi: parseInt(kondisi),
-        spesifikasi: spesifikasi || "-",
-        deskripsi: deskripsi || "-",
-      },
-    });
+    const newProduk = await prisma.$transaction(async (tx) => {
+      const createProduct = await tx.tD_Produk.create({
+        data: {
+          nama,
+          harga: Number(harga),
+          kondisi: Number(kondisi),
+          spesifikasi: spesifikasi || "-",
+          deskripsi: deskripsi || "-",
+        },
+      });
 
-    if (createProduct) {
-      await prisma.tH_Produk.create({
+      await tx.tH_Produk.create({
         data: {
           produkId: createProduct.id,
           aksi: 1,
           userId: user.id,
+          keterangan: "Produk",
         },
       });
-    }
+
+      await Promise.all(
+        files.map((file, index) => {
+          return tx.tD_ProdukImage.create({
+            data: {
+              name: file.filename,
+              path: file.path,
+              produkId: createProduct.id,
+              primary: index === 0 ? 1 : 2,
+            },
+          });
+        })
+      );
+
+      return createProduct;
+    });
 
     res.status(201).json({
       success: true,
       message: "Produk berhasil ditambahkan",
-      produk: createProduct,
+      produk: newProduk,
     });
+  } catch (error) {
+    await Promise.all(files.map(async (file) => await fs.unlink(file.path)));
+    next(error);
+  }
+};
+
+const deleteProduct = async (req, res, next) => {
+  const { id } = req.params;
+  console.log(id);
+  try {
+    res.status(200).json({ success: true, message: "Produk berhasil dihapus" });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { getProducts, createProduct };
+module.exports = { getProducts, createProduct, deleteProduct };

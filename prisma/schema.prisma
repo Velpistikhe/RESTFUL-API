@@ -35,21 +35,33 @@ model TH_User {
 }
 
 model TD_Produk {
+  id              String    @id @default(uuid())
+  nama            String    @db.VarChar(255)
+  kondisi         Int
+  harga           Int
+  spesifikasi     String?   @db.VarChar(255)
+  deskripsi       String?   @db.VarChar(255)
+  createAt        DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  TH_Produk       TH_Produk[]
+  TD_ProdukImage  TD_ProdukImage[]
+}
+
+model TD_ProdukImage {
   id          String    @id @default(uuid())
-  nama        String    @db.VarChar(255)
-  kondisi     Int
-  harga       Int
-  spesifikasi String?   @db.VarChar(255)
-  deskripsi   String?   @db.VarChar(255)
+  name        String    @db.VarChar(255)
+  path        String    @db.VarChar(255)
+  primary     Int
+  produkId    String    @db.VarChar(255)
+  TD_Produk   TD_Produk @relation(fields: [produkId], references: [id])
   createAt    DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  TH_Produk   TH_Produk[]
 }
 
 model TH_Produk {
   id          String    @id @default(uuid())
   aksi        Int
   produkId    String    @db.VarChar(255)
+  keterangan  String    @db.VarChar(255) @default("")
   TD_Produk   TD_Produk @relation(fields: [produkId], references: [id])
   userId      String    @db.VarChar(255)
   TD_User     TD_User   @relation(fields: [userId], references: [id])
