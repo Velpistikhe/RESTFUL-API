@@ -1,6 +1,6 @@
-const prisma = require("../../config/prismaClient");
 const fs = require("fs").promises;
-const path = require("path");
+const prisma = require("../../config/prismaClient");
+const { AKSI, IMAGE_TYPE } = require("../../utils/constanst");
 
 const getProducts = async (req, res, next) => {
   const {
@@ -21,6 +21,11 @@ const getProducts = async (req, res, next) => {
     harga && { harga: parseFloat(harga) },
   ].filter(Boolean);
 
+  const allowedSortFields = ["nama", "kondisi", "createAt"];
+  const allowedOrder = ["asc", "desc"];
+  const sortField = allowedSortFields.includes(sort) ? sort : "createAt";
+  const sortOrder = allowedOrder.includes(order.toLowerCase()) ? order : "desc";
+
   const where = {
     AND: filters,
   };
@@ -31,7 +36,7 @@ const getProducts = async (req, res, next) => {
         where,
         skip,
         take,
-        orderBy: { [sort]: order },
+        orderBy: { [sortField]: sortOrder },
       }),
       prisma.tD_Produk.count({ where }),
     ]);
@@ -54,7 +59,7 @@ const getProducts = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   const user = req.user;
   const { nama, harga, kondisi, spesifikasi, deskripsi } = req.body;
-  const files = req.files;
+  const files = req.files || [];
 
   try {
     const newProduk = await prisma.$transaction(async (tx) => {
@@ -71,24 +76,24 @@ const createProduct = async (req, res, next) => {
       await tx.tH_Produk.create({
         data: {
           produkId: createProduct.id,
-          aksi: 1,
+          aksi: AKSI.CREATE,
           userId: user.id,
           keterangan: "Produk",
         },
       });
 
-      await Promise.all(
-        files.map((file, index) => {
-          return tx.tD_ProdukImage.create({
-            data: {
-              name: file.filename,
-              path: file.path,
-              produkId: createProduct.id,
-              primary: index === 0 ? 1 : 2,
-            },
-          });
-        })
-      );
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        await tx.tD_ProdukImage.create({
+          data: {
+            name: file.filename,
+            path: file.path,
+            produkId: createProduct.id,
+            primary: i === 0 ? IMAGE_TYPE.PRIMARY : IMAGE_TYPE.SECONDARY,
+          },
+        });
+      }
 
       return createProduct;
     });
@@ -99,7 +104,12 @@ const createProduct = async (req, res, next) => {
       produk: newProduk,
     });
   } catch (error) {
-    await Promise.all(files.map(async (file) => await fs.unlink(file.path)));
+    try {
+      await Promise.all(files.map(async (file) => await fs.unlink(file.path)));
+    } catch (fsError) {
+      console.error("Gagal menghapus file", fsError);
+    }
+
     next(error);
   }
 };
