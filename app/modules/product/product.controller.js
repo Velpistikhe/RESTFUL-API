@@ -47,7 +47,7 @@ const getProducts = async (req, res, next) => {
       prisma.tD_Produk.count({ where }),
     ]);
 
-    const produks = datas.map((data) => {
+    const produks = datas?.map((data) => {
       const { TD_ProdukImage, ...restData } = data;
       return {
         ...restData,
