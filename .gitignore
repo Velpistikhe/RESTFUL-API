@@ -12,4 +12,4 @@ coverage/
 /generated/prisma
 /src/generated/prisma
 /generated/prisma
-/public
+app/public

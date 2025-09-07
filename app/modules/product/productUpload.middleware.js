@@ -4,7 +4,7 @@ const cloudStorage = require("../../config/storage");
 const path = require("path");
 const storage = multer.diskStorage({
   destination: (req, filename, cb) => {
-    cb(null, "public/pictures/product");
+    cb(null, "app/public/pictures/product");
   },
 
   filename: (req, file, cb) => {
