@@ -70,6 +70,7 @@ const getProducts = async (req, res, next) => {
       produks,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
