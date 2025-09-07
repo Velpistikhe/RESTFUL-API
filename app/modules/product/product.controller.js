@@ -51,10 +51,10 @@ const getProducts = async (req, res, next) => {
       const { TD_ProdukImage, ...restData } = data;
       return {
         ...restData,
-        // image:
-        //   process.env.NODE_ENV === "production"
-        //     ? TD_ProdukImage[0].path
-        //     : `http://localhost:5000/pictures/product/${TD_ProdukImage[0].name}`,
+        image:
+          process.env.NODE_ENV === "production"
+            ? TD_ProdukImage[0]?.path
+            : `http://localhost:5000/pictures/product/${TD_ProdukImage[0].name}`,
       };
     });
 
