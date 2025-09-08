@@ -70,7 +70,42 @@ const getProducts = async (req, res, next) => {
       produks,
     });
   } catch (error) {
-    console.log(error);
+    next(error);
+  }
+};
+
+const getProduct = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const data = await prisma.tD_Produk.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        TD_ProdukImage: true,
+      },
+    });
+
+    if (!data)
+      return res
+        .status(404)
+        .json({ success: false, message: "Produk tidak ditemukan" });
+
+    const { kondisi, TD_ProdukImage, ...item } = data;
+
+    const produk = {
+      ...item,
+      kondisi: kondisi === 1 ? "Baru" : "Bekas",
+      image: TD_ProdukImage.map((pic) =>
+        process.env.NODE_ENV === "production"
+          ? pic.path
+          : `http://localhost:5000/pictures/product/${pic.name}`
+      ),
+    };
+
+    res.status(200).json({ success: true, produk });
+  } catch (error) {
     next(error);
   }
 };
@@ -123,7 +158,6 @@ const createProduct = async (req, res, next) => {
       produk: newProduk,
     });
   } catch (error) {
-    console.log(error);
     try {
       await Promise.all(files.map(async (file) => await fs.unlink(file.path)));
     } catch (fsError) {
@@ -201,4 +235,4 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-module.exports = { getProducts, createProduct, deleteProduct };
+module.exports = { getProducts, getProduct, createProduct, deleteProduct };

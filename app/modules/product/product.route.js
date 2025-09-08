@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getProducts,
+  getProduct,
   createProduct,
   deleteProduct,
 } = require("./product.controller");
@@ -10,6 +11,7 @@ const uploadMiddleware = require("./productUpload.middleware");
 const router = express.Router();
 
 router.get("/", getProducts);
+router.get("/:id", getProduct);
 router.post("/", verifyToken, uploadMiddleware, validateProduct, createProduct);
 router.delete("/:id", verifyToken, deleteProduct);
 
