@@ -55,7 +55,7 @@ const getProducts = async (req, res, next) => {
         image:
           process.env.NODE_ENV === "production"
             ? TD_ProdukImage[0]?.path
-            : `http://localhost:5000/pictures/product/${TD_ProdukImage[0].name}`,
+            : `http://localhost:5000/pictures/product/${TD_ProdukImage[0]?.name}`,
       };
     });
 
@@ -71,6 +71,7 @@ const getProducts = async (req, res, next) => {
       produks,
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -114,7 +115,7 @@ const getProduct = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   const user = req.user;
   const { nama, harga, kondisi, spesifikasi, deskripsi } = req.body;
-  const files = req.files || [];
+  const files = req.files.file || [];
 
   try {
     const newProduk = await prisma.$transaction(async (tx) => {
@@ -160,7 +161,11 @@ const createProduct = async (req, res, next) => {
     });
   } catch (error) {
     try {
-      await Promise.all(files.map(async (file) => await fs.unlink(file.path)));
+      await Promise.all(
+        files.map(
+          async (file) => await cloudinary.uploader.destroy(file.filename)
+        )
+      );
     } catch (fsError) {
       console.error("Gagal menghapus file", fsError);
     }
@@ -196,19 +201,11 @@ const deleteProduct = async (req, res, next) => {
     });
 
     await Promise.all(
-      findImage.map(async ({ id: idImage, name, path }) => {
-        if (process.env.NODE_ENV === "production") {
-          try {
-            await cloudinary.uploader.destroy(name);
-          } catch (fsError) {
-            console.error("Gagal menghapus file", fsError);
-          }
-        } else {
-          try {
-            await fs.unlink(path);
-          } catch (fsError) {
-            console.error("Gagal menghapus file", fsError);
-          }
+      findImage.map(async ({ id: idImage, name }) => {
+        try {
+          await cloudinary.uploader.destroy(name);
+        } catch (fsError) {
+          console.error("Gagal menghapus file", fsError);
         }
 
         try {
