@@ -1,6 +1,7 @@
 const fs = require("fs").promises;
 const prisma = require("../../config/prismaClient");
 const { AKSI, IMAGE_TYPE } = require("../../utils/constanst");
+const cloudinary = require("../../config/cloudinary");
 
 const getProducts = async (req, res, next) => {
   try {
@@ -195,11 +196,19 @@ const deleteProduct = async (req, res, next) => {
     });
 
     await Promise.all(
-      findImage.map(async ({ id: idImage, path }) => {
-        try {
-          await fs.unlink(path);
-        } catch (fsError) {
-          console.error("Gagal menghapus file", fsError);
+      findImage.map(async ({ id: idImage, name, path }) => {
+        if (process.env.NODE_ENV === "production") {
+          try {
+            await cloudinary.uploader.destroy(name);
+          } catch (fsError) {
+            console.error("Gagal menghapus file", fsError);
+          }
+        } else {
+          try {
+            await fs.unlink(path);
+          } catch (fsError) {
+            console.error("Gagal menghapus file", fsError);
+          }
         }
 
         try {
