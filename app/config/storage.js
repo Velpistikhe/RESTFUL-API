@@ -4,7 +4,7 @@ const cloudinary = require("./cloudinary");
 const cloudStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "produk",
+    folder: "e-commerce/produk",
     allowed_formats: ["jpg", "jpeg", "png"],
     transformation: [{ width: 800, height: 800, crop: "limit" }],
   },
