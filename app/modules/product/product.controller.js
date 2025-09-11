@@ -52,10 +52,7 @@ const getProducts = async (req, res, next) => {
       const { TD_ProdukImage, ...restData } = data;
       return {
         ...restData,
-        image:
-          process.env.NODE_ENV === "production"
-            ? TD_ProdukImage[0]?.path
-            : `http://localhost:5000/pictures/product/${TD_ProdukImage[0]?.name}`,
+        image: TD_ProdukImage[0]?.path,
       };
     });
 
@@ -71,7 +68,6 @@ const getProducts = async (req, res, next) => {
       produks,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -99,11 +95,7 @@ const getProduct = async (req, res, next) => {
     const produk = {
       ...item,
       kondisi: kondisi === 1 ? "Baru" : "Bekas",
-      image: TD_ProdukImage.map((pic) =>
-        process.env.NODE_ENV === "production"
-          ? pic.path
-          : `http://localhost:5000/pictures/product/${pic.name}`
-      ),
+      image: TD_ProdukImage.map((pic) => pic.path),
     };
 
     res.status(200).json({ success: true, produk });
