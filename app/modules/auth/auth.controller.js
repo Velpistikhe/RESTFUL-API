@@ -111,7 +111,10 @@ const profile = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      user: { nama: user.nama, role: user.role === 0 ? "Admin" : "Staff" },
+      user: {
+        nama: user.nama,
+        role: user.role === 0 ? "Admin" : user.role === 1 ? "Staff" : "User",
+      },
     });
   } catch (error) {
     next(error);
