@@ -122,9 +122,13 @@ const profile = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
-  res.clearCookie("Authorization", cookieOptions);
+  try {
+    res.clearCookie("Authorization", cookieOptions);
 
-  res.status(200).json({ success: true, message: "Berhasil Logout" });
+    res.status(200).json({ success: true, message: "Berhasil Logout" });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = { register, login, logout, profile };

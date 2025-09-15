@@ -33,7 +33,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(helmet());
-
 app.use(cookieParser());
 
 app.get("/api/csrf-token", csrfProtection, setupCsrfToken);
